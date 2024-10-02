@@ -16,9 +16,9 @@ class RunCamera:
         while self.capture.isOpened():
             ret, self.frame = self.capture.read()
             self.frame = self.draw_roi()
+            self.frame = self.get_complementing_color()
             if not ret or cv2.waitKey(25) & 0xFF == 27:
-                break
-            if self.end_video:
+                self.get_complementing_color(True)
                 break
             frame_resised = cv2.resize(self.frame,
                                        (self.frame.shape[0]//2,
@@ -26,14 +26,12 @@ class RunCamera:
             cv2.imshow('frame', frame_resised)
         self.capture.release()
         cv2.destroyAllWindows()
-        self.get_complementing_color()
 
     def end_video(self):
         """
         This should add a button/command to end/accept a frame
         """
         return False
-    
 
     def draw_roi(self) -> np.ndarray:
         """
@@ -41,17 +39,17 @@ class RunCamera:
         extracted.
         Frame of color is the extracted color.
         """
-        height, width = self.frame.shape[:2]
-        roi_h = round(height*self.height_percentage)
+        width, height = self.frame.shape[:2]
         roi_w = round(width*self.widht_perscentage)
-        roi_top_left = (round(height//2 - roi_h//2),
-                        round(width//2 - roi_w//2))
-        roi_bottom_right = (round(height//2 + roi_h//2),
-                            round(width//2 + roi_w//2))
+        roi_h = round(height*self.height_percentage)
+        roi_top_left = (round(width//2 - roi_w//2),
+                        round(height//2 - roi_h//2))
+        roi_bottom_right = (round(width//2 + roi_w//2),
+                            round(height//2 + roi_h//2))
         self.current_mean =  self.get_color_values(self.frame[roi_top_left[0]:roi_bottom_right[0],
                                                               roi_top_left[1]:roi_bottom_right[1]])
         frame_new = cv2.rectangle(self.frame, roi_top_left, roi_bottom_right,
-                                  self.current_mean, 2)
+                                  self.current_mean, 3)
         return frame_new
         
     def get_color_values(self, roi: np.ndarray) -> tuple:
@@ -70,18 +68,24 @@ class RunCamera:
                 r.append(pxl[2])
         return (int(np.mean(b)), int(np.mean(g)), int(np.mean(r)))
     
-    def get_complementing_color(self):
+    def get_complementing_color(self, save: bool = False):
         """
         save image of complementing color
+        TODO: Update this to manage lightness
         """
+        print(f'Getting mathching color to {self.current_mean}...')
         comp_color = (255-self.current_mean[0],
                       255-self.current_mean[1],
                       255-self.current_mean[2])
+        print(f'detected opposite color was: {comp_color}')
         final_img = cv2.rectangle(self.frame, (0, 0),
-                                  (self.frame.shape[0],
-                                   self.frame.shape[1]),
-                                  comp_color, 3)
-        cv2.imwrite('color_img.png', final_img)
+                                  (self.frame.shape[1],
+                                   self.frame.shape[0]),
+                                  comp_color, 15)  
+        if save is True:
+            print('saves image...')
+            cv2.imwrite('color_img.png', final_img)
+        return final_img
 
 
 RunCamera()                
