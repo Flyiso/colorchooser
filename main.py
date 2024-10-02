@@ -72,6 +72,7 @@ class RunCamera:
         """
         save image of complementing color
         TODO: Update this to manage lightness
+        TODO: Improve color selection
         """
         print(f'Getting mathching color to {self.current_mean}...')
         comp_color = (255-self.current_mean[0],
