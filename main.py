@@ -11,8 +11,10 @@ class RunCamera:
         """
         get frame to extract colox from
         """
-        self.height_padding = 0.20
-        self.widht_padding = 0.20
+        self.height_padding = 0.30
+        self.widht_padding = 0.30
+        self.blur_a = 75
+        self.blur_b = 75
         self.capture = cv2.VideoCapture(0)
         while self.capture.isOpened():
             # manage the frame and average color of ROI
@@ -87,7 +89,7 @@ class RunCamera:
                 b.append(pxl[0])
                 g.append(pxl[1])
                 r.append(pxl[2])
-        self.current_mean = (int(np.mean(b)), int(np.mean(g)), int(np.mean(r)))
+        self.current_mean = (int(np.median(b)), int(np.median(g)), int(np.median(r)))
         return self.frame
     
     def blur_background(self,
@@ -105,21 +107,21 @@ class RunCamera:
         roi = np.copy(self.frame[roi_square_top_left[0]:roi_square_top_left[1],
                                  roi_square_bottom_right[0]:roi_square_bottom_right[1]])
         frame = cv2.rectangle(frame,
-                              (int(self.frame.shape[1]*(self.widht_padding/3)),
-                               int(self.frame.shape[0]*(self.height_padding/3))),
-                              (int(frame.shape[1]-self.frame.shape[1]*(self.widht_padding/3)),
-                               int(frame.shape[0]-self.frame.shape[0]*(self.height_padding/3))),
+                              (int(self.frame.shape[1]*(self.widht_padding/1.35)),
+                               int(self.frame.shape[0]*(self.height_padding/1.35))),
+                              (int(frame.shape[1]-self.frame.shape[1]*(self.widht_padding/1.35)),
+                               int(frame.shape[0]-self.frame.shape[0]*(self.height_padding/1.35))),
                                self.current_mean, -1)
-        frame = cv2.blur(frame, (125, 125))
+        frame = cv2.blur(frame, (self.blur_a, self.blur_b))
         frame[roi_square_top_left[0]:roi_square_top_left[1],
               roi_square_bottom_right[0]:roi_square_bottom_right[1]] = roi
         
         frame = cv2.rectangle(frame,
-                              (int(self.frame.shape[1]*self.widht_padding),
+                              (int(self.frame.shape[1]*(self.widht_padding)),
                                int(self.frame.shape[0]*self.height_padding)),
                                ( int(frame.shape[1]-self.frame.shape[1]*self.widht_padding),
                                  int(frame.shape[0]-self.frame.shape[0]*self.height_padding)
-                               ),self.current_mean, 25)
+                               ),self.current_mean, 10)
         return frame
     
     def get_complementary_color(self) -> list:
