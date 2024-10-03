@@ -40,12 +40,6 @@ class RunCamera:
         self.capture.release()
         cv2.destroyAllWindows()
 
-    def end_video(self):
-        """
-        This should add a button/command to end/accept a frame
-        """
-        return False
-
     def roi_operations(self, roi_method,
                        frame: np.ndarray|None = None) -> np.ndarray:
         """
@@ -125,7 +119,7 @@ class RunCamera:
                                int(self.frame.shape[0]*self.height_padding)),
                                ( int(frame.shape[1]-self.frame.shape[1]*self.widht_padding),
                                  int(frame.shape[0]-self.frame.shape[0]*self.height_padding)
-                               ),self.current_mean, 5)
+                               ),self.current_mean, 25)
         return frame
     
     def get_complementary_color(self) -> list:
@@ -209,6 +203,12 @@ class RunCamera:
                                        (section_size*(1+c_section), color_base.shape[0]),
                                        color, -1)
         
+        color_base = cv2.putText(color_base, comp_name,
+                            (0, color_base.shape[0]//2),
+                            cv2.FONT_HERSHEY_SIMPLEX,
+                            color_base.shape[0]/60,
+                            self.current_mean,
+                            max(2, round(color_base.shape[0]/30)), cv2.LINE_AA)
         color_base = cv2.putText(color_base, comp_name,
                             (0, color_base.shape[0]//2),
                             cv2.FONT_HERSHEY_SIMPLEX,
