@@ -2,6 +2,7 @@
 program to get color matching.
 """
 import cv2
+import colorsys
 import  numpy as np
 
 
@@ -75,9 +76,11 @@ class RunCamera:
         TODO: Improve color selection
         """
         print(f'Getting mathching color to {self.current_mean}...')
-        comp_color = (255-self.current_mean[0],
-                      255-self.current_mean[1],
-                      255-self.current_mean[2])
+        b, g, r = [n/255.0 for n in self.current_mean]
+        h, l, s = colorsys.rgb_to_hls(r, b, g)
+        h_opposite = (((h*360)+ 180) % 360) / 360
+        comp_color = colorsys.hls_to_rgb(h_opposite, l, s)
+        comp_color = [round(c*255) for c in comp_color[::-1]]
         print(f'detected opposite color was: {comp_color}')
         final_img = cv2.rectangle(self.frame, (0, 0),
                                   (self.frame.shape[1],
