@@ -127,6 +127,8 @@ class RunCamera:
     def get_complementary_color(self) -> list:
         """
         get color of opposite hue value
+
+        :return: list of 1 BGR colors-(3 values, 0-255)
         """
         b, g, r = [n/255.0 for n in self.current_mean]
         h, l, s = colorsys.rgb_to_hls(r, b, g)
@@ -138,6 +140,8 @@ class RunCamera:
     def get_triad_colors(self) -> list:
         """
         Get the 2 colors to create a triad
+
+        :return: list of 2 BGR colors-(3 values, 0-255)
         """
         b, g, r = [n/255.0 for n in self.current_mean]
         h, l, s = colorsys.rgb_to_hls(r, b, g)
@@ -150,6 +154,8 @@ class RunCamera:
     def  get_split_complementary_colors(self) -> list:
         """
         get the colors of split complementary harmony
+
+        :return: list of 2 BGR colors-(3 values, 0-255)
         """
         s_size = 360/12
         b, g, r = [n/255.0 for n in self.current_mean]
@@ -162,7 +168,9 @@ class RunCamera:
     
     def  get_tetradic_colors(self) -> list:
         """
-        get the colors of split complementary harmony
+        get the colors of tedratic color sheme
+
+        :return: list of 3 BGR colors-(3 values, 0-255)
         """
         s_size = 360/12
         b, g, r = [n/255.0 for n in self.current_mean]
@@ -177,7 +185,9 @@ class RunCamera:
 
     def  get_square_tetradic_colors(self) -> list:
         """
-        get the colors of split complementary harmony
+        get the colors of square detradic color scheme
+
+        :return: list of 3 BGR colors-(3 values, 0-255)
         """
         s_size = 360/12
         b, g, r = [n/255.0 for n in self.current_mean]
