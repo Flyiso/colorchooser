@@ -4,6 +4,7 @@ program to get color matching.
 import cv2
 import colorsys
 import  numpy as np
+from abc import ABC, abstractmethod
 
 
 class RunCamera:
@@ -22,11 +23,11 @@ class RunCamera:
             self.roi_operations(self.get_mean_color, self.frame)
 
             # get complementary colors and names
-            self.comp_colors = [self.get_complementary_color(),
-                                self.get_triad_colors(),
-                                self.get_split_complementary_colors(),
-                                self.get_tetradic_colors(),
-                                self.get_square_tetradic_colors()]
+            self.comp_colors = [ComplementaryColors(self.current_mean).matching,
+                                TriadColors(self.current_mean).matching,
+                                SplitComplementaryColors(self.current_mean).matching,
+                                TetrdicColor(self.current_mean).matching,
+                                SquareTetradicColors(self.current_mean).matching]
             self.comp_names = ['Complementary', 'Triad',
                                'Split Complemenntary',
                                'Tetradic', 'Square Tetradic']
@@ -123,83 +124,7 @@ class RunCamera:
                                  int(frame.shape[0]-self.frame.shape[0]*self.height_padding)
                                ),self.current_mean, 10)
         return frame
-    
-    def get_complementary_color(self) -> list:
-        """
-        get color of opposite hue value
 
-        :return: list of 1 BGR colors-(3 values, 0-255)
-        """
-        b, g, r = [n/255.0 for n in self.current_mean]
-        h, l, s = colorsys.rgb_to_hls(r, b, g)
-        h_opposite = (((h*360)+ 180) % 360) / 360
-        comp_color = colorsys.hls_to_rgb(h_opposite, l, s)
-        comp_color = [round(c*255) for c in comp_color[::-1]]
-        return [comp_color]
-    
-    def get_triad_colors(self) -> list:
-        """
-        Get the 2 colors to create a triad
-
-        :return: list of 2 BGR colors-(3 values, 0-255)
-        """
-        b, g, r = [n/255.0 for n in self.current_mean]
-        h, l, s = colorsys.rgb_to_hls(r, b, g)
-        h_1 = (((h*360)+ 120) % 360) / 360
-        h_2 = (((h*360)+ 240) % 360) / 360
-        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
-        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
-        return [comp_1, comp_2]
-    
-    def  get_split_complementary_colors(self) -> list:
-        """
-        get the colors of split complementary harmony
-
-        :return: list of 2 BGR colors-(3 values, 0-255)
-        """
-        s_size = 360/12
-        b, g, r = [n/255.0 for n in self.current_mean]
-        h, l, s = colorsys.rgb_to_hls(r, b, g)
-        h_1 = (((h*360)+ s_size*5) % 360) / 360
-        h_2 = (((h*360)+ s_size*7) % 360) / 360
-        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
-        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
-        return [comp_1, comp_2]
-    
-    def  get_tetradic_colors(self) -> list:
-        """
-        get the colors of tedratic color sheme
-
-        :return: list of 3 BGR colors-(3 values, 0-255)
-        """
-        s_size = 360/12
-        b, g, r = [n/255.0 for n in self.current_mean]
-        h, l, s = colorsys.rgb_to_hls(r, b, g)
-        h_1 = (((h*360)+ s_size*4) % 360) / 360
-        h_2 = (((h*360)+ s_size*6) % 360) / 360
-        h_3 = (((h*360)+ s_size*10) % 360) / 360
-        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
-        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
-        comp_3 = [c*255 for c in colorsys.hls_to_rgb(h_3, l, s)[::-1]]
-        return [comp_1, comp_2, comp_3]
-
-    def  get_square_tetradic_colors(self) -> list:
-        """
-        get the colors of square detradic color scheme
-
-        :return: list of 3 BGR colors-(3 values, 0-255)
-        """
-        s_size = 360/12
-        b, g, r = [n/255.0 for n in self.current_mean]
-        h, l, s = colorsys.rgb_to_hls(r, b, g)
-        h_1 = (((h*360)+ s_size*3) % 360) / 360
-        h_2 = (((h*360)+ s_size*6) % 360) / 360
-        h_3 = (((h*360)+ s_size*9) % 360) / 360
-        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
-        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
-        comp_3 = [c*255 for c in colorsys.hls_to_rgb(h_3, l, s)[::-1]]
-        return [comp_1, comp_2, comp_3]
-    
     def get_color_strips(self, comp_colors: list, comp_name:str) -> np.ndarray:
         """
         Return the detected color and suggested complementary colors as a numpy array.
@@ -251,5 +176,98 @@ class RunCamera:
             cv2.imwrite('color_img.png', frame_w_maps)
         return frame_w_maps
 
+    
+class GetMatchingColor(ABC):
+    def __init__(self, base_color):
+        self.base = base_color
+        self.matching = self.get_colors(base_color)
+
+    @abstractmethod
+    def get_colors(self, base_color) -> list:
+        """
+        Method that return list of color codes
+        """
+        pass
+
+class ComplementaryColors(GetMatchingColor):
+    def get_colors(self, base_color) -> list:
+        """
+        get color of opposite hue value
+
+        :return: list of 1 BGR colors-(3 values, 0-255)
+        """
+        b, g, r = [n/255.0 for n in base_color]
+        h, l, s = colorsys.rgb_to_hls(r, b, g)
+        h_opposite = (((h*360)+ 180) % 360) / 360
+        comp_color = colorsys.hls_to_rgb(h_opposite, l, s)
+        comp_color = [round(c*255) for c in comp_color[::-1]]
+        return [comp_color]
+
+class TriadColors(GetMatchingColor):   
+    def get_colors(self, base_color) -> list:
+        """
+        Get the 2 colors to create a triad
+
+        :return: list of 2 BGR colors-(3 values, 0-255)
+        """
+        b, g, r = [n/255.0 for n in base_color]
+        h, l, s = colorsys.rgb_to_hls(r, b, g)
+        h_1 = (((h*360)+ 120) % 360) / 360
+        h_2 = (((h*360)+ 240) % 360) / 360
+        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
+        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
+        return [comp_1, comp_2]
+    
+class SplitComplementaryColors(GetMatchingColor):
+    def  get_colors(self, base_color) -> list:
+        """
+        get the colors of split complementary harmony
+
+        :return: list of 2 BGR colors-(3 values, 0-255)
+        """
+        s_size = 360/12
+        b, g, r = [n/255.0 for n in base_color]
+        h, l, s = colorsys.rgb_to_hls(r, b, g)
+        h_1 = (((h*360)+ s_size*5) % 360) / 360
+        h_2 = (((h*360)+ s_size*7) % 360) / 360
+        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
+        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
+        return [comp_1, comp_2]
+    
+class TetrdicColor(GetMatchingColor):
+    def  get_colors(self, base_color) -> list:
+        """
+        get the colors of tedratic color sheme
+
+        :return: list of 3 BGR colors-(3 values, 0-255)
+        """
+        s_size = 360/12
+        b, g, r = [n/255.0 for n in base_color]
+        h, l, s = colorsys.rgb_to_hls(r, b, g)
+        h_1 = (((h*360)+ s_size*4) % 360) / 360
+        h_2 = (((h*360)+ s_size*6) % 360) / 360
+        h_3 = (((h*360)+ s_size*10) % 360) / 360
+        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
+        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
+        comp_3 = [c*255 for c in colorsys.hls_to_rgb(h_3, l, s)[::-1]]
+        return [comp_1, comp_2, comp_3]
+
+class  SquareTetradicColors(GetMatchingColor):
+    def  get_colors(self, base_color) -> list:
+        """
+        get the colors of square detradic color scheme
+
+        :return: list of 3 BGR colors-(3 values, 0-255)
+        """
+        s_size = 360/12
+        b, g, r = [n/255.0 for n in base_color]
+        h, l, s = colorsys.rgb_to_hls(r, b, g)
+        h_1 = (((h*360)+ s_size*3) % 360) / 360
+        h_2 = (((h*360)+ s_size*6) % 360) / 360
+        h_3 = (((h*360)+ s_size*9) % 360) / 360
+        comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
+        comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
+        comp_3 = [c*255 for c in colorsys.hls_to_rgb(h_3, l, s)[::-1]]
+        return [comp_1, comp_2, comp_3]
 
 RunCamera()                
