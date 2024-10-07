@@ -18,32 +18,45 @@ class RunCamera:
         self.widht_padding = 0.30
         self.blur_a = 75
         self.blur_b = 75
-        self.capture = cv2.VideoCapture(0)
-        while self.capture.isOpened():
+        #self.capture = cv2.VideoCapture(0)
+        #while self.capture.isOpened():
             # manage the frame and average color of ROI
-            self.c_index, (ret, self.frame) = enumerate(self.capture.read())
-            self.roi_operations(self.get_mean_color, self.frame)
+        #    self.c_index, (self.ret, self.frame) = enumerate(self.capture.read())
+        #    self.roi_operations(self.get_mean_color, self.frame)
 
             # get complementary colors and names
-            self.comp_colors = [ComplementaryColors(self.current_mean).matching,
-                                TriadColors(self.current_mean).matching,
-                                SplitComplementaryColors(self.current_mean).matching,
-                                TetrdicColor(self.current_mean).matching,
-                                SquareTetradicColors(self.current_mean).matching]
-            self.comp_names = ['Complementary', 'Triad',
-                               'Split Complemenntary',
-                               'Tetradic', 'Square Tetradic']
+        #    self.comp_colors = [ComplementaryColors(self.current_mean).matching,
+        #                        TriadColors(self.current_mean).matching,
+        #                        SplitComplementaryColors(self.current_mean).matching,
+        #                        TetrdicColor(self.current_mean).matching,
+        #                        SquareTetradicColors(self.current_mean).matching]
+        #    self.comp_names = ['Complementary', 'Triad',
+        #                       'Split Complemenntary',
+        #                       'Tetradic', 'Square Tetradic']
 
-            display_frame = self.draw_display_frame()
-            cv2.imshow('frame', display_frame.astype(np.uint8))
+            # self.display_frame - frame for kivy to display
+        #    self.display_frame = self.draw_display_frame()
+            #cv2.imshow('frame', display_frame.astype(np.uint8))
             
             # test if keep runing
-            if not ret or cv2.waitKey(25) & 0xFF == 27:
-                self.draw_display_frame(True)
-                break
+        #    if not self.ret or cv2.waitKey(25) & 0xFF == 27:
+        #        self.draw_display_frame(True)
+        #        break
             
-        self.capture.release()
-        cv2.destroyAllWindows()
+        #self.capture.release()
+        #cv2.destroyAllWindows()
+        self.capture = cv2.VideoCapture(0)
+
+    def get_ret_frame(self):
+        """
+        Return pre-processed frame
+
+        :output: ret, frame
+        """
+        self.ret, self.frame = self.capture.read()
+        self.roi_operations(self.get_mean_color, self.frame)
+        self.frame = self.return_display_frame()
+        return self.ret, self.frame
 
     def roi_operations(self, roi_method,
                        frame: np.ndarray|None = None) -> np.ndarray:
@@ -164,7 +177,7 @@ class RunCamera:
                                color_base.shape[0]//20)
         return color_base
     
-    def draw_display_frame(self, save_img: bool = False) -> np.ndarray:
+    def return_display_frame(self, save_img: bool = False) -> np.ndarray:
         """
         TODO: update this to just update current frame with camera+blur
         Create an image displaying camera view, and complementary color options.
@@ -173,14 +186,9 @@ class RunCamera:
         :return: image to display
         """
         frame = self.roi_operations(self.blur_background)
-        colors = [self.get_color_strips(comp_colors, comp_name) for comp_colors, comp_name 
-                  in zip(self.comp_colors, self.comp_names)]
-        frame_w_maps = np.concatenate([frame, *colors])
-        if save_img is True:
-            cv2.imwrite('color_img.png', frame_w_maps)
-        return frame_w_maps
-
-    
-
-
-RunCamera()                
+        #colors = [self.get_color_strips(comp_colors, comp_name) for comp_colors, comp_name 
+        #          in zip(self.comp_colors, self.comp_names)]
+        #frame_w_maps = np.concatenate([frame, *colors])
+        #if save_img is True:
+        #    cv2.imwrite('color_img.png', frame_w_maps)
+        return frame  #was  frame_w_maps               
