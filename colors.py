@@ -17,6 +17,14 @@ class GetMatchingColor(ABC):
         """
         pass
 
+    @abstractmethod
+    def return_name(self) -> str:
+        """
+        Method returns the display name of the color scheme as string
+        """
+        pass
+
+
 class ComplementaryColors(GetMatchingColor):
     def get_colors(self, base_color) -> list:
         """
@@ -29,7 +37,16 @@ class ComplementaryColors(GetMatchingColor):
         h_opposite = (((h*360)+ 180) % 360) / 360
         comp_color = colorsys.hls_to_rgb(h_opposite, l, s)
         comp_color = [round(c*255) for c in comp_color[::-1]]
-        return [comp_color]
+        return [list(base_color), comp_color]
+    
+    def return_name(self) -> str:
+        """
+        Return string name
+
+        :return: str 'Complementary'
+        """
+        return 'Complementary'
+
 
 class TriadColors(GetMatchingColor):   
     def get_colors(self, base_color) -> list:
@@ -44,8 +61,17 @@ class TriadColors(GetMatchingColor):
         h_2 = (((h*360)+ 240) % 360) / 360
         comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
         comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
-        return [comp_1, comp_2]
+        return [list(base_color), comp_1, comp_2]
     
+    def return_name(self) -> str:
+        """
+        Return string of name as 'readable' name to print.
+
+        :return: str 'Triad'
+        """
+        return 'Triad'
+
+
 class SplitComplementaryColors(GetMatchingColor):
     def  get_colors(self, base_color) -> list:
         """
@@ -60,9 +86,18 @@ class SplitComplementaryColors(GetMatchingColor):
         h_2 = (((h*360)+ s_size*7) % 360) / 360
         comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
         comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
-        return [comp_1, comp_2]
+        return [list(base_color), comp_1, comp_2]
     
-class TetrdicColor(GetMatchingColor):
+    def return_name(self) -> str:
+        """
+        Return string of name as 'readable' name to print.
+
+        :return: str 'Split Complementary'
+        """
+        return 'Split Complementary'
+
+
+class TetradicColor(GetMatchingColor):
     def  get_colors(self, base_color) -> list:
         """
         get the colors of tedratic color sheme
@@ -78,7 +113,16 @@ class TetrdicColor(GetMatchingColor):
         comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
         comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
         comp_3 = [c*255 for c in colorsys.hls_to_rgb(h_3, l, s)[::-1]]
-        return [comp_1, comp_2, comp_3]
+        return [list(base_color), comp_1, comp_2, comp_3]
+    
+    def return_name(self) -> str:
+        """
+        Return string of name as 'readable' name to print.
+
+        :return: str 'Tetradic'
+        """
+        return 'Tetradic'
+
 
 class  SquareTetradicColors(GetMatchingColor):
     def  get_colors(self, base_color) -> list:
@@ -96,4 +140,12 @@ class  SquareTetradicColors(GetMatchingColor):
         comp_1 = [c*255 for c in colorsys.hls_to_rgb(h_1, l, s)[::-1]]
         comp_2 = [c*255 for c in colorsys.hls_to_rgb(h_2, l, s)[::-1]]
         comp_3 = [c*255 for c in colorsys.hls_to_rgb(h_3, l, s)[::-1]]
-        return [comp_1, comp_2, comp_3]
+        return [list(base_color), comp_1, comp_2, comp_3]
+    
+    def return_name(self) -> str:
+        """
+        Return string of name as 'readable' name to print.
+
+        :return: str 'Square Tetradic'
+        """
+        return 'Square Tetradic'

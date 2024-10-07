@@ -2,11 +2,7 @@
 program to get color matching.
 """
 import cv2
-import  numpy as np
-from colors import \
-    ComplementaryColors, TriadColors,\
-        SplitComplementaryColors, TetrdicColor,\
-            SquareTetradicColors 
+import  numpy as np 
 
 
 class RunCamera:
@@ -18,33 +14,6 @@ class RunCamera:
         self.widht_padding = 0.30
         self.blur_a = 75
         self.blur_b = 75
-        #self.capture = cv2.VideoCapture(0)
-        #while self.capture.isOpened():
-            # manage the frame and average color of ROI
-        #    self.c_index, (self.ret, self.frame) = enumerate(self.capture.read())
-        #    self.roi_operations(self.get_mean_color, self.frame)
-
-            # get complementary colors and names
-        #    self.comp_colors = [ComplementaryColors(self.current_mean).matching,
-        #                        TriadColors(self.current_mean).matching,
-        #                        SplitComplementaryColors(self.current_mean).matching,
-        #                        TetrdicColor(self.current_mean).matching,
-        #                        SquareTetradicColors(self.current_mean).matching]
-        #    self.comp_names = ['Complementary', 'Triad',
-        #                       'Split Complemenntary',
-        #                       'Tetradic', 'Square Tetradic']
-
-            # self.display_frame - frame for kivy to display
-        #    self.display_frame = self.draw_display_frame()
-            #cv2.imshow('frame', display_frame.astype(np.uint8))
-            
-            # test if keep runing
-        #    if not self.ret or cv2.waitKey(25) & 0xFF == 27:
-        #        self.draw_display_frame(True)
-        #        break
-            
-        #self.capture.release()
-        #cv2.destroyAllWindows()
         self.capture = cv2.VideoCapture(0)
 
     def get_ret_frame(self):
@@ -54,6 +23,7 @@ class RunCamera:
         :output: ret, frame
         """
         self.ret, self.frame = self.capture.read()
+        self.frame_width, self.frame_height = self.frame.shape[:2]
         self.roi_operations(self.get_mean_color, self.frame)
         self.frame = self.return_display_frame()
         return self.ret, self.frame
@@ -128,6 +98,10 @@ class RunCamera:
                               (int(frame.shape[1]-self.frame.shape[1]*(self.widht_padding/1.35)),
                                int(frame.shape[0]-self.frame.shape[0]*(self.height_padding/1.35))),
                                self.current_mean, -1)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(frame)
+        s = np.clip(s * 1.25, 0, 255).astype(np.uint8)
+        frame = cv2.cvtColor(cv2.merge([h, s, v]), cv2.COLOR_HSV2BGR)
         frame = cv2.blur(frame, (self.blur_a, self.blur_b))
         frame[roi_square_top_left[0]:roi_square_top_left[1],
               roi_square_bottom_right[0]:roi_square_bottom_right[1]] = roi
@@ -139,43 +113,6 @@ class RunCamera:
                                  int(frame.shape[0]-self.frame.shape[0]*self.height_padding)
                                ),self.current_mean, 10)
         return frame
-
-    def get_color_strips(self, comp_colors: list, comp_name:str) -> np.ndarray:
-        """
-        TODO: Remove this to instead create individual kivy widgets(?).
-        Return the detected color and suggested complementary colors as a numpy array.
-
-        :param comp_colors: list of the complementary colors
-        :param comp_names: sting of the kind of complementary color.
-        :return: numpy array- of current mean color + complementary colors + complementary method.
-        """
-        color_base = np.zeros((int(round(self.frame.shape[0]/10)), int(self.frame.shape[1]), self.frame.shape[2]))
-        section_size = round(color_base.shape[1]/(len(comp_colors)+1))
-        for c_section, color in enumerate([self.current_mean, *comp_colors]):
-            color_base = cv2.rectangle(color_base, (section_size*c_section, 0),
-                                       (section_size*(1+c_section), color_base.shape[0]),
-                                       color, -1)
-        
-        color_base = cv2.putText(color_base, comp_name,
-                            (0, color_base.shape[0]//2),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            color_base.shape[0]/60,
-                            self.current_mean,
-                            max(2, round(color_base.shape[0]/30)), cv2.LINE_AA)
-        color_base = cv2.putText(color_base, comp_name,
-                            (0, color_base.shape[0]//2),
-                            cv2.FONT_HERSHEY_SIMPLEX,
-                            color_base.shape[0]/60,
-                            (255-self.current_mean[0],
-                             255-self.current_mean[1],
-                             255-self.current_mean[2]),
-                            max(1, round(color_base.shape[0]/40)), cv2.LINE_AA)
-        color_base = cv2.line(color_base, (0, 0), (color_base.shape[1], 0),
-                              (255-self.current_mean[0],
-                               255-self.current_mean[1],
-                               255-self.current_mean[2]),
-                               color_base.shape[0]//20)
-        return color_base
     
     def return_display_frame(self, save_img: bool = False) -> np.ndarray:
         """
