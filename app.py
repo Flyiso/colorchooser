@@ -1,13 +1,18 @@
 import kivy
-from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.gridlayout import BoxLayout
+from kivy.app import MDApp
+from kivy.uix.button import MDRaisedButton
+from kivy.uix.gridlayout import MDBoxLayout
 
 
-# TODO: add ToCamera class for using camera to find matching color.  
-class FromCamera(App):
-    def __init__(self, **kwargs):
-        self.layout =  BoxLayout(orientation='vertical')
+class MainApp(MDApp):
+    def build(self):
+        layout = MDBoxLayout(orientation='vertical')
+        layout.add_widget(MDRaisedButton(
+            text='Click Here',
+            pos_hint={'center_x':.5,'center_y':.0},
+            size_hint=(None, None))
+            )
+        return layout
 
 if __name__ == '__main__':
-    FromCamera().run()
+    MainApp().run()
