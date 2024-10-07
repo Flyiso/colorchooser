@@ -14,6 +14,7 @@ class CamApp(App):
 
     def build(self):
         self.img1=Image()
+        self.button_pressed = False
         self.comp_color_classes = [ComplementaryColors, TriadColors,
                                    SplitComplementaryColors,
                                    TetradicColor, SquareTetradicColors]
@@ -38,11 +39,15 @@ class CamApp(App):
         self.total_width = self.camera.frame_width
         self.total_height = self.camera.frame_height
         self.layout.width = self.total_width
+        if self.button_pressed:
+            self.display_match()
         self.update_buttons()
 
         self.img1.texture = texture1
 
     def update_buttons(self):
+        if self.button_pressed:
+            return
         self.buttons_layout.clear_widgets()
         self.buttons = []
 
@@ -60,11 +65,33 @@ class CamApp(App):
                              text=btn_name,
                              halign='left',
                              valign='middle',
-                             text_size=((self.total_width*btn_width_hint)*0.75, None),
+                             text_size=((self.total_width*btn_width_hint)*0.85, None),
                              size_hint=(btn_width_hint, 1))
                 row_layout.add_widget(btn)
                 self.buttons.append(btn)
             self.buttons_layout.add_widget(row_layout)
+
+        def display_match(self):
+            # method to display how well numeric value indicating
+            # camera view match what is
+            # current value of self.active_color
+            pass
+        
+        def press_button(self, btn):
+            # add some kind of logic to exit if button pressed is not active?
+
+            # de-selcect button 
+            if self.button_pressed:
+                self.button_pressed = False
+                self.active_color = None
+                return
+            # press button:
+            self.active_color = btn.background_color
+            self.button_pressed = True
+            # Mark button/update border color of pressed button
+            # de-activate all buttons except pressed one
+            # make de-activated buttons somewhat less saturated
+
 
 
 if __name__ == '__main__':
