@@ -14,7 +14,7 @@ class RunCamera:
         self.widht_padding = 0.30
         self.blur_a = 75
         self.blur_b = 75
-        self.capture = cv2.VideoCapture(0)
+        self.capture = cv2.VideoCapture('http://192.168.0.6:8080/video')
 
     def get_ret_frame(self):
         """
