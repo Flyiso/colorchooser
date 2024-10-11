@@ -1,14 +1,14 @@
+import cv2
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
+#from kivy.lang import Builder  #New
 from camera import RunCamera
-# classes for color matching/future button creation:
 from  colors import ComplementaryColors, TriadColors, SplitComplementaryColors, TetradicColor, SquareTetradicColors
 
-import cv2
 
 class CamApp(App):
 
@@ -96,4 +96,4 @@ class CamApp(App):
 
 if __name__ == '__main__':
     CamApp().run()
-    cv2.destroyAllWindows()
+    #cv2.destroyAllWindows()

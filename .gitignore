@@ -1,7 +1,9 @@
 # kivy/buildozer/vscode
 .buildozer
-bin
 .vscode
+bin
+.idea/*
+idea*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
