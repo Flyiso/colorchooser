@@ -6,8 +6,13 @@ from kivy.uix.button import Button
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
 #from kivy.lang import Builder  #New
+from jnius import autoclass  #NEW
 from camera import RunCamera
 from  colors import ComplementaryColors, TriadColors, SplitComplementaryColors, TetradicColor, SquareTetradicColors
+
+
+CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
+CAMERA_INDEX = {'front': CameraInfo.CAMERA_FACING_FRONT, 'back': CameraInfo.CAMERA_FACING_BACK}
 
 
 class CamApp(App):
