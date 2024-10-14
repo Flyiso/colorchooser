@@ -4,7 +4,7 @@ buildozer==1.5.0
 certifi==2024.8.30
 charset-normalizer==3.3.2
 colorama==0.4.6
-Cython==3.0.11
+Cython==0.29.36
 distlib==0.3.8
 docutils==0.21.2
 filelock==3.16.1
@@ -21,6 +21,7 @@ platformdirs==4.3.6
 ptyprocess==0.7.0
 Pygments==2.18.0
 pyproject_hooks==1.2.0
+python-for-android==2024.1.21
 requests==2.32.3
 sh==1.14.3
 toml==0.10.2
