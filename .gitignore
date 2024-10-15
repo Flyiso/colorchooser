@@ -1,5 +1,5 @@
 # kivy/buildozer/vscode
-.buildozer
+.buildozer/
 .vscode
 bin
 .idea/*
