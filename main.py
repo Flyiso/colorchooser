@@ -198,10 +198,10 @@ class MatchingWidget(BoxLayout):
 class CameraWidget(Camera):
     resolution = (640, 480)
     index = CAMERA_INDEX['back']
-    blur_a = 75
-    blur_b = 75
-    height_padding = 0.10
-    widht_padding = 0.10
+    blur_a = 55
+    blur_b = 55
+    height_padding = 0.20
+    widht_padding = 0.20
 
     def on_tex(self, *l):
         if self._camera._buffer is None:
