@@ -1,5 +1,7 @@
-# kivy/buildozer/vscode
-.buildozer/
+# kivy/vscode/builds
+android
+applibs
+state.db
 .vscode
 bin
 .idea/*
