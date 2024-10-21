@@ -1,8 +1,10 @@
 # colorthing
 application to find color matching the average color in frame
 made to be built into an apk package using buildozer.
-Tested on arm64-v8a device
-currently working: 'Match-mode'(camera+display matching colors-no button functionality)
+
+#Tested on arm64-v8a device
+#currently working: 'Match-mode'(camera+display matching colors-no button functionality)
+
 TO CREATE APK PACKAGE:
 buildozer android debug
 
@@ -21,6 +23,9 @@ PROJECT PLAN(- = Done, * = Not Done)
         -draw frame of ROI in 'target' color
     
     matcher (works-ish):
+        - use color detected by camera to create color themes
+        * modify color theme creation/find alternative/better methods.
+          (make it work for both dark and light colors, manage shadows/reflections...)
         - display rows of buttons
         - modify buttons color to be ether target color or matching colors
             column-wise: 

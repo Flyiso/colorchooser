@@ -179,10 +179,12 @@ class MatchingWidget(BoxLayout):
                          TetradicColor, SquareTetradicColors]
         for color_class in color_classes:
             color_class = color_class(to_match)
-            btn_name = f'  {color_class.return_name()}'
             btn_width_hint = 0.40
             row_layout = BoxLayout(orientation='horizontal', size_hint_y=1)
             for indx, color in enumerate(color_class.matching):
+                color_str = ' | '.join([f'{nme}_{str(round(col))}'
+                                      for col, nme in zip(color,['R', 'G', 'B'])])
+                btn_name = f'  {color_class.return_name()}\n  {color_str}'
                 if indx > 0:
                     btn_name = '\n'.join([f'  {nme} -> {str(round(col))}' for col, nme 
                                           in zip(color, ['R', 'G', 'B'])])
