@@ -16,7 +16,7 @@ import cv2
 CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
 CAMERA_INDEX = {'front': CameraInfo.CAMERA_FACING_FRONT, 'back': CameraInfo.CAMERA_FACING_BACK}
 Builder.load_file("myapplayout.kv")
-# buildozer android debug deploy run
+# buildozer android debug
 
 class GetMatchingColor(ABC):
     """
