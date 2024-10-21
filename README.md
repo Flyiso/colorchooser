@@ -1,14 +1,14 @@
 # colorchooser
-(android-targetting) kivy application to find color matching the average color in frame./n
-made to be built into an apk package using buildozer./n
-/n
-#Tested on arm64-v8a device/n
-#currently working: 'Match-mode'(camera+display matching colors-no button functionality)/n
-/n
-TO CREATE APK PACKAGE:/n
-buildozer android debug/n
-/n
-/n
+(android-targetting) kivy application to find color matching the average color in frame.<br /> 
+made to be built into an apk package using buildozer.<br />
+<br />
+#Tested on arm64-v8a device<br />
+#currently working: 'Match-mode'(camera+display matching colors-no button functionality)<br />
+<br />
+TO CREATE APK PACKAGE:<br />
+buildozer android debug<br />
+<br />
+<br />
     CURRENT PROJECT PLAN
     (- = Done, * = Not Done)
 
