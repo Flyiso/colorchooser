@@ -13,6 +13,7 @@ TO CREATE APK PACKAGE:<br />
 *buildozer android debug*<br />
 <br />
 <br />
+
     CURRENT PROJECT PLAN
     (- = Done, * = Not Done)
 
