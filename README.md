@@ -2,11 +2,15 @@
 (android-targetting) kivy application to find color matching the average color in frame.<br /> 
 made to be built into an apk package using buildozer.<br />
 <br />
-#Tested on arm64-v8a device<br />
-#currently working: 'Match-mode'(camera+display matching colors-no button functionality)<br />
+Tested on device:<br />
+*arm64-v8a*<br />
+<br/>
+currently working:<br />
+*camera (displaying and modification of frames works as intended)*<br />
+*'Matcher (draws all buttons as indended. But no functionality)*<br />
 <br />
 TO CREATE APK PACKAGE:<br />
-buildozer android debug<br />
+*buildozer android debug*<br />
 <br />
 <br />
     CURRENT PROJECT PLAN
