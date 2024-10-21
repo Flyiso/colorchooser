@@ -16,6 +16,7 @@ import cv2
 CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
 CAMERA_INDEX = {'front': CameraInfo.CAMERA_FACING_FRONT, 'back': CameraInfo.CAMERA_FACING_BACK}
 Builder.load_file("myapplayout.kv")
+# TO CREATE APK PACKAGE:
 # buildozer android debug
 
 class GetMatchingColor(ABC):
@@ -173,23 +174,30 @@ class MatchingWidget(BoxLayout):
     def update_colors(self, to_match):
         self.buttons_layout.clear_widgets()
         self.buttons = []
-        for color_class in [ComplementaryColors, TriadColors,
-                            SplitComplementaryColors,
-                            TetradicColor, SquareTetradicColors]:
+        self.total_width = 480
+        color_classes = [ComplementaryColors, TriadColors,
+                         SplitComplementaryColors,
+                         TetradicColor, SquareTetradicColors]
+        for color_class in color_classes:
             color_class = color_class(to_match)
-            btn_name = color_class.return_name()
-            btn_width_hint = 0.25
+            btn_name = f' {color_class.return_name()}'
+            btn_width_hint = 0.40
             row_layout = BoxLayout(orientation='horizontal', size_hint_y=1)
             for indx, color in enumerate(color_class.matching):
                 if indx > 0:
-                    btn_name = '-'.join([str(round(col)) for col in color[::-1]])
-                    btn_width_hint = (1/(len(color_class.matching)-1))
+                    btn_name = '\n'.join([f' {nme} -> {str(round(col))}' for col, nme 
+                                          in zip(color, ['R', 'G', 'B'])])
+                    btn_width_hint = (0.60/(len(color_class.matching)-1))
                 color = [c / 255 for c in color] + [1]
                 btn = Button(background_color=color,
                              text=btn_name,
                              halign='left',
-                             valign='middle')
+                             valign='middle',
+                             text_size=(self.width*btn_width_hint,
+                                        self.height),
+                             size_hint=(btn_width_hint, 1))
                 row_layout.add_widget(btn)
+                # text_size=((self.total_width*btn_width_hint)*0.75, None)
             self.buttons_layout.add_widget(row_layout)
 
         if not self.children:
@@ -283,6 +291,14 @@ class CameraWidget(Camera):
         r = []
         roi = frame[roi_square_top_left[0]:roi_square_top_left[1],
                     roi_square_bottom_right[0]:roi_square_bottom_right[1]]
+        # New code to increase/modify saturation and value
+        roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
+        h, s, v = cv2.split(roi)
+        s = np.clip(s * 1.15, 0, 255).astype(np.uint8)
+        v = np.clip(v * 1.15, 0, 255).astype(np.uint8)
+        roi = cv2.cvtColor(cv2.merge([h, s, v]), cv2.COLOR_HSV2BGR)
+        # End of new, untested code.
+
         for row in roi:
             for pxl in row:
                 b.append(pxl[0])
