@@ -1,15 +1,16 @@
-# colorthing
-application to find color matching the average color in frame
-made to be built into an apk package using buildozer.
-
-#Tested on arm64-v8a device
-#currently working: 'Match-mode'(camera+display matching colors-no button functionality)
-
-TO CREATE APK PACKAGE:
-buildozer android debug
-
-
-    PROJECT PLAN(- = Done, * = Not Done)
+# colorchooser
+(android-targetting) kivy application to find color matching the average color in frame./n
+made to be built into an apk package using buildozer./n
+/n
+#Tested on arm64-v8a device/n
+#currently working: 'Match-mode'(camera+display matching colors-no button functionality)/n
+/n
+TO CREATE APK PACKAGE:/n
+buildozer android debug/n
+/n
+/n
+    CURRENT PROJECT PLAN
+    (- = Done, * = Not Done)
 
     match mode
         camera (works):
