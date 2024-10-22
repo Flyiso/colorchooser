@@ -204,6 +204,32 @@ class MatchingWidget(BoxLayout):
         if not self.children:
             self.add_widget(self.buttons_layout)
 
+    def on_button_press(self):
+        """
+        notes/plan/idea for button press steps
+        """
+        # BUTTON STATUS OPTIONS:
+        # 1. not_activated - default/start status
+        # 2. activated - status when pressed-only one of this status allowed.
+        # 3. de_activated - status indicates unavailability(because other button is activated)
+        # 4. unavailable - status of static button that, on press, does not trigger any event.
+
+        # status of first button of each row is to be 'unavailable'
+        # check if button press is to select or un-select
+
+        #  if select:
+        #       de-activate all other buttons(except first of each row)
+        #       set self.color_to_find to button color
+
+        #   if  de_select:
+        #       set status of all buttons(except firt of each row) to 'not_activated'
+        #       set  self.color_to_find to 'match'
+        
+        # 'gray-out' all buttons of status 'de_activated'
+        #  enhance/mark button of status 'activated'
+        #  reset/set appearance to normal of buttons of status 'not_activated', or 'unavailable'
+        pass
+
 class CameraWidget(Camera):
     resolution = (640, 480)
     index = CAMERA_INDEX['back']
@@ -219,7 +245,14 @@ class CameraWidget(Camera):
         super(CameraWidget, self).on_tex(*l)
         self.texture = Texture.create(size=np.flip(self.resolution), colorfmt='rgb')
         frame = self.frame_from_buf()
-        self.frame_to_screen(frame)
+
+        # two 'routes' for different camera options. 
+        self.mode = 'match'  # get value of this from button widgets'color_to_find' attribute
+        if self.mode == 'match':
+            self.frame_to_screen_match(frame)
+        else:
+            self.frame_to_screen_find(frame)
+
 
     def frame_from_buf(self):
         w, h = self.resolution
@@ -230,17 +263,34 @@ class CameraWidget(Camera):
         else:
             return np.rot90(frame_bgr, 3)
 
-    def frame_to_screen(self, frame):
+    def frame_to_screen_match(self, frame):
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.frame = frame_rgb
         self.roi_operations(self.get_mean_color, frame_rgb)
         frame_rgb = self.roi_operations(self.blur_background, frame_rgb)
-        self.width = frame_rgb.shape[0]
+        self.width = frame_rgb.shape[0] #  this is not nessesary-test without?
         self.parent.ids.matching_widget.update_colors(self.current_mean)
         flipped = np.flip(frame_rgb, 0)
         buf = flipped.tobytes()
         self.texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
 
+    def frame_to_screen_find(self, frame):
+        """
+        This frame to screen displays the camera in 'find mode',
+        attempting to match color selected to color in frame
+        """
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        self.frame = frame_rgb
+        self.roi_operations(self.get_mean_color, frame_rgb)
+        self.parent.ids.matching_widget.update_colors(self.current_mean)
+        # self.mode returns the targeted color
+        # add method to get similarity metrics
+        # add method to print/display metrics
+        # add method to modify/displayed frame(blur, draw frame...)
+        flipped = np.flip(frame_rgb, 0)
+        buf = flipped.tobytes()
+        self.texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+    
     def blur_background(self,
                         roi_square_top_left: tuple,
                         roi_square_bottom_right: tuple,
