@@ -60,6 +60,7 @@ TO CREATE APK PACKAGE:<br />
             *'Permanent' indicator on button that color is found
 
     Camera-modifier (not yet started):
+        * change between front or back camera.
         * UI to adjust color values in display
         * Add reset button.
         * make it a dropdown meny?

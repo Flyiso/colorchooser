@@ -3,7 +3,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.graphics.texture import Texture
 from kivy.uix.camera import Camera
 from kivy.lang import Builder
-from kivy.uix.widget import Widget
 from jnius import autoclass
 import colorsys
 from abc import ABC, abstractmethod
@@ -198,7 +197,6 @@ class MatchingWidget(BoxLayout):
                                         self.height),
                              size_hint=(btn_width_hint, 1))
                 row_layout.add_widget(btn)
-                # text_size=((self.total_width*btn_width_hint)*0.75, None)
             self.buttons_layout.add_widget(row_layout)
 
         if not self.children:
@@ -235,7 +233,6 @@ class CameraWidget(Camera):
         self.frame = frame_rgb
         self.roi_operations(self.get_mean_color, frame_rgb)
         frame_rgb = self.roi_operations(self.blur_background, frame_rgb)
-        self.width = frame_rgb.shape[0]
         self.parent.ids.matching_widget.update_colors(self.current_mean)
         flipped = np.flip(frame_rgb, 0)
         buf = flipped.tobytes()
