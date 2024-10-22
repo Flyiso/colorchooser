@@ -189,7 +189,8 @@ class MatchingWidget(BoxLayout):
                                           in zip(color, ['R', 'G', 'B'])])
                     btn_width_hint = (0.60/(len(color_class.matching)-1))
                 color = [c / 255 for c in color] + [1]
-                btn = Button(background_color=color,
+                btn = Button(background_normal='',  # THIS IS NEW
+                             background_color=color,
                              text=btn_name,
                              halign='left',
                              valign='middle',
@@ -289,13 +290,15 @@ class CameraWidget(Camera):
         r = []
         roi = frame[roi_square_top_left[0]:roi_square_top_left[1],
                     roi_square_bottom_right[0]:roi_square_bottom_right[1]]
+        """
         # New code to increase/modify saturation and value
-        roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HSV)
-        h, s, v = cv2.split(roi)
-        s = np.clip(s * 1.15, 0, 255).astype(np.uint8)
-        v = np.clip(v * 1.15, 0, 255).astype(np.uint8)
-        roi = cv2.cvtColor(cv2.merge([h, s, v]), cv2.COLOR_HSV2BGR)
+        roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HLS)
+        h, l, s = cv2.split(roi)
+        s = np.clip((s * 1.25)+25, 5, 255).astype(np.uint8)
+        l = np.clip((l * 1.25)+15, 5, 255).astype(np.uint8)
+        roi = cv2.cvtColor(cv2.merge([h, l, s]), cv2.COLOR_HLS2BGR)
         # End of new, untested code.
+        """
 
         for row in roi:
             for pxl in row:
