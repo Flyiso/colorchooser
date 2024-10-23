@@ -169,8 +169,13 @@ class  SquareTetradicColors(GetMatchingColor):
 
 class MatchingWidget(BoxLayout):
     buttons_layout = BoxLayout(orientation='vertical')
+    functional_buttons = {}
+    color_to_find = 'match'  # match is default/start state- changes to color code
+                             # if mode is changed
+    last_active = None
 
     def update_colors(self, to_match):
+        self.last_active = to_match
         self.buttons_layout.clear_widgets()
         self.buttons = []
         self.total_width = 480
@@ -185,29 +190,48 @@ class MatchingWidget(BoxLayout):
                 color_str = ' | '.join([f'{nme}_{str(round(col))}'
                                       for col, nme in zip(color,['R', 'G', 'B'])])
                 btn_name = f'  {color_class.return_name()}\n  {color_str}'
+                btn_status = 'unavailable'
+                
                 if indx > 0:
                     btn_name = '\n'.join([f'  {nme} -> {str(round(col))}' for col, nme 
                                           in zip(color, ['R', 'G', 'B'])])
                     btn_width_hint = (0.60/(len(color_class.matching)-1))
-                color = [c / 255 for c in color] + [1]
+                    btn_status = 'de_activated'
+                    color = [c / 255 for c in color] + [1]
+
+                    if str(color) == self.color_to_find:
+                        btn_status = 'activated'
+                    elif self.color_to_find == 'match':
+                        btn_status = 'not_activated'
+                
                 btn = Button(background_normal='',
+                             background_color=color,
                              text=btn_name,
                              halign='left',
                              valign='middle',
                              text_size=(self.width*btn_width_hint,
                                         self.height),
-                             size_hint=(btn_width_hint, 1))
+                             size_hint=(btn_width_hint, 1)) 
+   
+                btn.bind(on_press=self.on_press)
+                btn.status = btn_status
+                
                 row_layout.add_widget(btn)
-                # text_size=((self.total_width*btn_width_hint)*0.75, None)
+            
             self.buttons_layout.add_widget(row_layout)
-
         if not self.children:
             self.add_widget(self.buttons_layout)
 
-    def on_button_press(self):
+    def on_press(self, btn_instance):
         """
         notes/plan/idea for button press steps
         """
+        if btn_instance.status == 'activated':
+            self.color_to_find = 'match'
+        if btn_instance.status == 'not_activated':
+            self.color_to_find = str(btn_instance.color)
+    
+
         # BUTTON STATUS OPTIONS:
         # 1. not_activated - default/start status
         # 2. activated - status when pressed-only one of this status allowed.
@@ -245,14 +269,12 @@ class CameraWidget(Camera):
         super(CameraWidget, self).on_tex(*l)
         self.texture = Texture.create(size=np.flip(self.resolution), colorfmt='rgb')
         frame = self.frame_from_buf()
-
         # two 'routes' for different camera options. 
-        self.mode = 'match'  # get value of this from button widgets'color_to_find' attribute
+        self.mode = self.parent.ids.matching_widget.color_to_find  # get value of this from button widgets'color_to_find' attribute
         if self.mode == 'match':
             self.frame_to_screen_match(frame)
         else:
             self.frame_to_screen_find(frame)
-
 
     def frame_from_buf(self):
         w, h = self.resolution
@@ -267,9 +289,9 @@ class CameraWidget(Camera):
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.frame = frame_rgb
         self.roi_operations(self.get_mean_color, frame_rgb)
+        self.detected_mean = self.current_mean
         frame_rgb = self.roi_operations(self.blur_background, frame_rgb)
-        self.width = frame_rgb.shape[0] #  this is not nessesary-test without?
-        self.parent.ids.matching_widget.update_colors(self.current_mean)
+        self.parent.ids.matching_widget.update_colors(self.detected_mean)
         flipped = np.flip(frame_rgb, 0)
         buf = flipped.tobytes()
         self.texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
@@ -281,8 +303,10 @@ class CameraWidget(Camera):
         """
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.frame = frame_rgb
+        self.detected_mean = self.parent.ids.matching_widget.last_active
         self.roi_operations(self.get_mean_color, frame_rgb)
-        self.parent.ids.matching_widget.update_colors(self.current_mean)
+        frame_rgb = self.roi_operations(self.blur_background, frame_rgb)
+        self.parent.ids.matching_widget.update_colors(self.detected_mean)
         # self.mode returns the targeted color
         # add method to get similarity metrics
         # add method to print/display metrics
@@ -290,6 +314,13 @@ class CameraWidget(Camera):
         flipped = np.flip(frame_rgb, 0)
         buf = flipped.tobytes()
         self.texture.blit_buffer(buf, colorfmt='rgb', bufferfmt='ubyte')
+    
+    def print_metrics_on_frame(self, frame):
+        """
+        Display some metrics to indicate camera view to target similarity 
+        """
+        print(f'mean_to_find: {self.detected_mean}\nmean_found: {self.current_mean}')
+        return frame
     
     def blur_background(self,
                         roi_square_top_left: tuple,
