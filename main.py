@@ -8,6 +8,7 @@ import colorsys
 from abc import ABC, abstractmethod
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+import joblib
 import numpy as np
 import cv2
 
@@ -278,35 +279,43 @@ class CameraWidget(Camera):
     def get_mean_color(self,
                        roi_square_top_left: tuple,
                        roi_square_bottom_right: tuple,
-                       frame:np.ndarray) -> np.ndarray:
+                       frame:np.ndarray, method: str = 'mean') -> np.ndarray:
         """
         get average color inside of ROIblur_background
 
         :param roi: numpy array- section of image to get color from.
         :return:  np.array- input frame
         """
+       
+        roi = frame[roi_square_top_left[0]:roi_square_top_left[1],
+                    roi_square_bottom_right[0]:roi_square_bottom_right[1]]
+        if method == 'kmeans':
+            self.get_k_means_cluster(roi)
+        else:
+            self.get_mean_pixel_value(roi)
+        return self.frame
+    
+    def get_k_means_cluster(self, roi):
+        kmeans = joblib.load('kmeans_model_v1.pkl')
+        pixel_values = roi.reshape((-1, 3))
+        pixel_values = np.float32(pixel_values)
+        kmeans.fit(pixel_values)
+        labels = kmeans.labels_
+        label_counts = np.bincount(labels)
+        most_common_label = np.argmax(label_counts)
+        self.current_mean = tuple(map(int, kmeans.cluster_centers_[most_common_label]))
+        return
+
+    def get_mean_pixel_value(self, roi):
         b = []
         g = []
         r = []
-        roi = frame[roi_square_top_left[0]:roi_square_top_left[1],
-                    roi_square_bottom_right[0]:roi_square_bottom_right[1]]
-        """
-        # New code to increase/modify saturation and value
-        roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HLS)
-        h, l, s = cv2.split(roi)
-        s = np.clip((s * 1.25)+25, 5, 255).astype(np.uint8)
-        l = np.clip((l * 1.25)+15, 5, 255).astype(np.uint8)
-        roi = cv2.cvtColor(cv2.merge([h, l, s]), cv2.COLOR_HLS2BGR)
-        # End of new, untested code.
-        """
-
         for row in roi:
             for pxl in row:
                 b.append(pxl[0])
                 g.append(pxl[1])
                 r.append(pxl[2])
         self.current_mean = (int(np.median(b)), int(np.median(g)), int(np.median(r)))
-        return self.frame
 
     def roi_operations(self, roi_method,
                        frame: np.ndarray|None = None) -> np.ndarray:
