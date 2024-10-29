@@ -7,7 +7,6 @@ from jnius import autoclass
 from abc import ABC, abstractmethod
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
-from sklearn.cluster import MiniBatchKMeans
 import numpy as np
 import colorsys
 import cv2
@@ -291,16 +290,7 @@ class CameraWidget(Camera):
         r = []
         roi = frame[roi_square_top_left[0]:roi_square_top_left[1],
                     roi_square_bottom_right[0]:roi_square_bottom_right[1]]
-        """
-        # New code to increase/modify saturation and value
-        roi = cv2.cvtColor(roi, cv2.COLOR_BGR2HLS)
-        h, l, s = cv2.split(roi)
-        s = np.clip((s * 1.25)+25, 5, 255).astype(np.uint8)
-        l = np.clip((l * 1.25)+15, 5, 255).astype(np.uint8)
-        roi = cv2.cvtColor(cv2.merge([h, l, s]), cv2.COLOR_HLS2BGR)
-        # End of new, untested code.
-        """
-
+ 
         for row in roi:
             for pxl in row:
                 b.append(pxl[0])
