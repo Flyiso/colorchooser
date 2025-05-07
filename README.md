@@ -65,3 +65,9 @@ TO CREATE APK PACKAGE:<br />
         * Add reset button.
         * make it a dropdown meny?
         * carousel of different color spaces? (BGR, HSV...)
+
+Currently working on:
+    Ios support
+
+TODO:
+    Better code in kivy camera app (.py)
