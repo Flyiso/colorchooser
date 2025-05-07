@@ -68,6 +68,9 @@ TO CREATE APK PACKAGE:<br />
 
 Currently working on:
     Ios support
+    Zooming
+    freeze frame
 
 TODO:
     Better code in kivy camera app (.py)
+    attempt ios compile with mac

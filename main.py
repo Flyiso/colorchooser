@@ -7,12 +7,13 @@ from jnius import autoclass
 from abc import ABC, abstractmethod
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.scatter import Scatter # Zoom? -https://kivy.org/doc/stable/api-kivy.uix.scatter.html
 import numpy as np
 import colorsys
 import cv2
 
 # To  more easily modify target device (.kv file still might need edit)
-target_device == 'iOS'  # 'iOS' or 'Android'
+target_device == 'Android'  # 'iOS' or 'Android'
 
 if  target_device  == 'Android':
     CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
@@ -358,6 +359,12 @@ class CameraWidget(Camera):
                                   (roi_top_left[1], roi_bottom_right[1]),
                                   frame)
         return return_frame
+
+class ImageFrame(Scatter):
+    do_rotation = False
+    do_scale = True
+    scale_min = 1.0
+    scale_max = 10.0
 
 class MyLayout(BoxLayout):
     pass
