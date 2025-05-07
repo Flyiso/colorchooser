@@ -11,10 +11,13 @@ import numpy as np
 import colorsys
 import cv2
 
+# To  more easily modify target device (.kv file still might need edit)
+target_device == 'iOS'  # 'iOS' or 'Android'
 
-CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
-CAMERA_INDEX = {'front': CameraInfo.CAMERA_FACING_FRONT, 'back': CameraInfo.CAMERA_FACING_BACK}
-Builder.load_file("myapplayout.kv")
+if  target_device  == 'Android':
+    CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
+    CAMERA_INDEX = {'front': CameraInfo.CAMERA_FACING_FRONT, 'back': CameraInfo.CAMERA_FACING_BACK}
+    Builder.load_file("myapplayout.kv")
 
 
 class GetMatchingColor(ABC):
@@ -139,7 +142,7 @@ class TetradicColor(GetMatchingColor):
         return 'Tetradic'
 
 
-class  SquareTetradicColors(GetMatchingColor):
+class SquareTetradicColors(GetMatchingColor):
     def  get_colors(self, base_color) -> list:
         """
         get the colors of square detradic color scheme
@@ -205,20 +208,48 @@ class MatchingWidget(BoxLayout):
 
 class CameraWidget(Camera):
     resolution = (640, 480)
-    index = CAMERA_INDEX['back']
+    #  index = CAMERA_INDEX['back']
+    index = 0
     blur_a = 55
     blur_b = 55
     height_padding = 0.20
     widht_padding = 0.20
 
-    def on_tex(self, *l):
-        if self._camera._buffer is None:
-            return None
+    def on_tex(self, *args):
+        #  (*args was *l)
+        # Only Android (maybe)
+        # if self._camera._buffer is None:
+        #    return None
 
-        super(CameraWidget, self).on_tex(*l)
-        self.texture = Texture.create(size=np.flip(self.resolution), colorfmt='rgb')
-        frame = self.frame_from_buf()
-        self.frame_to_screen(frame)
+        #  iOS attempt:
+        super().on_texture(*args)
+        tex = self.texture
+        w, h = tex.size
+        buf = tex.pixels
+        frame_rgba = np.frombuffer(buf, np.uint8).reshape(h, w, 4)
+        frame_bgr = cv2.cvtColor(frame_rgba[...,:3], cv2.COLOR_RGB2BGR)
+        if self.index == 1:
+            frame_bgr = np.fliplr(np.rot90(frame_bgr, k=1))
+        else:
+            frame_bgr = np.rot90(frame_bgr, k=3)
+        
+        self.frame = frame_bgr.copy()
+        self.roi_operations(self.get_mean_color, frame_bgr)
+        processed = self.roi_operations(self.blur_background, frame_bgr)
+
+        processed_rgb = cv2.cvtColor(processed, cv2.COLOR_BGR2RGB)
+        alpha_channel = np.ones((h, w, 1), dtype=np.uint8) * 255
+        out_rgba = np.dstack([processed_rgb, alpha_channel])
+
+        self.texture.blit_buffer(out_rgba.tobytes(),
+                                 colorfmt='rgba',
+                                 bufferfmt='ubyte')
+
+        #  super(CameraWidget, self).on_tex(*l)
+        #  self.texture = Texture.create(size=np.flip(self.resolution), colorfmt='rgb')
+        
+        #  frame = self.frame_from_buf()
+        #  self.frame_to_screen(frame)
 
     def frame_from_buf(self):
         w, h = self.resolution
