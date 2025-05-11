@@ -18,10 +18,10 @@ target_device == 'Android'  # 'iOS' or 'Android'
 if  target_device  == 'Android':
     CameraInfo = autoclass('android.hardware.Camera$CameraInfo')
     CAMERA_INDEX = {'front': CameraInfo.CAMERA_FACING_FRONT, 'back': CameraInfo.CAMERA_FACING_BACK}
-    Builder.load_file("myapplayoutandroid.kv")
+    Builder.load_file("myapplayout.kv")
 
 if target_device == 'iOS':
-    Builder.load_file("myapplayout.kv")
+    Builder.load_file("myapplayoutios.kv")
 
 
 class GetMatchingColor(ABC):

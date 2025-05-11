@@ -3,9 +3,12 @@
     size: root.width, root.height
 
     CameraWidget:
+        id: camera_widget
+        provider: 'avfoundation'
         fit_mode: 'fill'
         play: True
+        on_texture: root.camera_widget.on_tex()
 
     MatchingWidget:
         id: matching_widget
-        size_hint_y: 1  
+        size_hint_y: 1   
